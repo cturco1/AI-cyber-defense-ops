@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+   <System>
+      <Provider Name="Microsoft-Windows-Sysmon" Guid="{5770385f-c22a-43e0-bf4c-06f5698ffbd9}" />
+      <EventID>1</EventID>
+      <Version>5</Version>
+      <Level>4</Level>
+      <Task>1</Task>
+      <Opcode>0</Opcode>
+      <Keywords>0x8000000000000000</Keywords>
+      <TimeCreated SystemTime="2024-12-01T16:05:11.8573590Z" />
+      <EventRecordID>4942</EventRecordID>
+      <Correlation />
+      <Execution ProcessID="4028" ThreadID="5104" />
+      <Channel>Microsoft-Windows-Sysmon/Operational</Channel>
+      <Computer>win11v.condef.local</Computer>
+      <Security UserID="S-1-5-18" />
+   </System>
+   <EventData>
+      <Data Name="RuleName">technique_id=T1033,technique_name=System Owner/User Discovery</Data>
+      <Data Name="UtcTime">2024-12-01 16:05:11.850</Data>
+      <Data Name="ProcessGuid">{f3565dc0-8937-674c-7801-000000000c00}</Data>
+      <Data Name="ProcessId">9388</Data>
+      <Data Name="Image">C:\Windows\System32\whoami.exe</Data>
+      <Data Name="FileVersion">10.0.26100.1882 (WinBuild.160101.0800)</Data>
+      <Data Name="Description">whoami - displays logged on user information</Data>
+      <Data Name="Product">Microsoft® Windows® Operating System</Data>
+      <Data Name="Company">Microsoft Corporation</Data>
+      <Data Name="OriginalFileName">whoami.exe</Data>
+      <Data Name="CommandLine">whoami  /groups</Data>
+      <Data Name="CurrentDirectory">C:\Users\administrator\</Data>
+      <Data Name="User">CONDEF\Administrator</Data>
+      <Data Name="LogonGuid">{f3565dc0-88b9-674c-6ead-160000000000}</Data>
+      <Data Name="LogonId">0x16ad6e</Data>
+      <Data Name="TerminalSessionId">1</Data>
+      <Data Name="IntegrityLevel">High</Data>
+      <Data Name="Hashes">SHA1=C23488BA47972B04F795D34B35C8257EC4B7AC9D,MD5=956692DADC5B2CEB46E9219F7A5BEFFA,SHA256=23240EF9F8B0A9A324110B1C2331DE31DC1B0E08F5359CB707E51A939AF56CD3,IMPHASH=E4464BCD92DF7AC69CCD074CB9C0EFED</Data>
+      <Data Name="ParentProcessGuid">{f3565dc0-8934-674c-7201-000000000c00}</Data>
+      <Data Name="ParentProcessId">6124</Data>
+      <Data Name="ParentImage">C:\Windows\System32\cmd.exe</Data>
+      <Data Name="ParentCommandLine">"C:\WINDOWS\system32\cmd.exe"</Data>
+      <Data Name="ParentUser">CONDEF\Administrator</Data>
+   </EventData>
+</Event>
