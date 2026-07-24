@@ -9,9 +9,10 @@ SAMPLES = ROOT / "samples"
 FIXTURES = Path(__file__).parent / "fixtures"
 
 
-def run(*args):
+def run(*args, stdin=None):
     result = subprocess.run(
         [sys.executable, str(PARSER), *args],
+        input=stdin,
         capture_output=True,
         text=True,
     )
@@ -70,10 +71,13 @@ def test_missing_file_errors():
     assert "error: file not found" in err
 
 
-def test_directory_as_path_errors():
+def test_directory_input_aggregates_all_xml_files():
     code, out, err = run(str(SAMPLES))
-    assert code == 1
-    assert "error: expected a file, got a directory" in err
+    assert code == 0
+    assert err == ""
+    parsed = json.loads(out)
+    # event1.xml, event2.xml, event3.xml (1 each) + multi_events.xml (3) = 6
+    assert len(parsed) == 6
 
 
 def test_malformed_xml_errors():
@@ -210,3 +214,58 @@ def test_zero_filter_matches_returns_empty_array_not_error():
     assert code == 0
     assert err == ""
     assert json.loads(out) == []
+
+
+# --- stdin input --------------------------------------------------------------
+
+
+def test_stdin_is_the_default_when_no_path_given():
+    xml_text = (SAMPLES / "event1.xml").read_text()
+    code, out, err = run(stdin=xml_text)
+    assert code == 0
+    assert err == ""
+    parsed = json.loads(out)
+    assert parsed["Image"] == r"C:\Windows\System32\whoami.exe"
+
+
+def test_explicit_dash_reads_from_stdin():
+    xml_text = (SAMPLES / "multi_events.xml").read_text()
+    code, out, err = run("-", stdin=xml_text)
+    assert code == 0
+    parsed = json.loads(out)
+    assert len(parsed) == 3
+
+
+def test_stdin_malformed_xml_errors():
+    code, out, err = run(stdin="<Event><System></System>")
+    assert code == 1
+    assert "error: malformed XML" in err
+
+
+# --- directory input -----------------------------------------------------------
+
+
+def test_directory_input_sorts_and_parses_each_xml_file():
+    code, out, err = run(str(FIXTURES / "dir_two_files"))
+    assert code == 0
+    assert err == ""
+    parsed = json.loads(out)
+    assert len(parsed) == 2
+    assert [e["Image"] for e in parsed] == [
+        r"C:\Windows\System32\notepad.exe",
+        r"C:\Windows\System32\calc.exe",
+    ]
+
+
+def test_directory_with_no_xml_files_errors():
+    code, out, err = run(str(FIXTURES / "dir_no_xml"))
+    assert code == 1
+    assert "no .xml files found in directory" in err
+
+
+def test_directory_input_skips_unparseable_file_with_warning():
+    code, out, err = run(str(FIXTURES / "dir_partial"))
+    assert code == 0
+    assert "warning: skipping" in err
+    parsed = json.loads(out)
+    assert parsed["Image"] == r"C:\Windows\System32\notepad.exe"

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+   <System>
+      <Provider Name="Microsoft-Windows-Security-Auditing" Guid="{54849625-5478-4994-a5ba-3e3b0328c30d}" />
+      <EventID>1</EventID>
+      <Computer>host-b.condef.local</Computer>
+   </System>
+   <EventData>
+      <Data Name="Image">C:\Windows\System32\cmd.exe</Data>
+   </EventData>
+</Event>

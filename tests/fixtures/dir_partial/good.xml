@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+   <System>
+      <Provider Name="Microsoft-Windows-Sysmon" Guid="{5770385f-c22a-43e0-bf4c-06f5698ffbd9}" />
+      <EventID>1</EventID>
+      <Computer>host-a.condef.local</Computer>
+   </System>
+   <EventData>
+      <Data Name="UtcTime">2024-12-01 10:00:00.000</Data>
+      <Data Name="Image">C:\Windows\System32\notepad.exe</Data>
+      <Data Name="CommandLine">notepad.exe</Data>
+      <Data Name="User">CONDEF\alice</Data>
+      <Data Name="IntegrityLevel">Medium</Data>
+      <Data Name="ParentImage">C:\Windows\explorer.exe</Data>
+      <Data Name="ParentCommandLine">explorer.exe</Data>
+      <Data Name="Hashes">SHA1=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</Data>
+   </EventData>
+</Event>

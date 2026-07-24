@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import os
 import sys
 import xml.etree.ElementTree as ET
 
@@ -76,15 +77,38 @@ def matches_filters(event, args):
     return True
 
 
-def load_events(path):
+def iter_input_sources(path):
+    """Yield (label, source) pairs to feed to load_events().
+
+    `source` is a path string or a file object. "-" (or no path) yields
+    stdin; a directory yields each *.xml file inside it, sorted by name;
+    anything else yields itself as a single file source.
+    """
+    if path is None or path == "-":
+        yield "<stdin>", sys.stdin
+        return
+
+    if os.path.isdir(path):
+        names = sorted(name for name in os.listdir(path) if name.endswith(".xml"))
+        if not names:
+            raise SysmonFormatError(f"no .xml files found in directory: {path}")
+        for name in names:
+            full = os.path.join(path, name)
+            yield full, full
+        return
+
+    yield path, path
+
+
+def load_events(label, source):
     try:
-        tree = ET.parse(path)
+        tree = ET.parse(source)
     except FileNotFoundError:
-        raise SysmonFormatError(f"file not found: {path}")
+        raise SysmonFormatError(f"file not found: {label}")
     except IsADirectoryError:
-        raise SysmonFormatError(f"expected a file, got a directory: {path}")
+        raise SysmonFormatError(f"expected a file, got a directory: {label}")
     except PermissionError:
-        raise SysmonFormatError(f"permission denied reading file: {path}")
+        raise SysmonFormatError(f"permission denied reading file: {label}")
     except ET.ParseError as e:
         raise SysmonFormatError(f"malformed XML: {e}")
 
@@ -115,7 +139,16 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description="Extract key fields from Sysmon Event ID 1 (Process Creation) XML events."
     )
-    parser.add_argument("path", help="path to a Sysmon XML file")
+    parser.add_argument(
+        "path",
+        nargs="?",
+        default="-",
+        help=(
+            "path to a Sysmon XML file, or a directory of .xml files to parse "
+            "together; omit or pass '-' to read a single XML document from "
+            "stdin (default: stdin)"
+        ),
+    )
     parser.add_argument("--image", help="keep events whose Image contains this substring (case-insensitive)")
     parser.add_argument("--user", help="keep events whose User exactly matches this value (case-insensitive)")
     parser.add_argument(
@@ -141,19 +174,35 @@ def main():
     args = parse_args()
 
     try:
-        events = load_events(args.path)
+        sources = list(iter_input_sources(args.path))
+    except SysmonFormatError as e:
+        print(f"error: {e}", file=sys.stderr)
+        sys.exit(1)
 
-        results = []
+    multi_source = len(sources) > 1
+
+    results = []
+    for label, source in sources:
+        try:
+            events = load_events(label, source)
+        except SysmonFormatError as e:
+            if multi_source:
+                print(f"warning: skipping {label}: {e}", file=sys.stderr)
+                continue
+            print(f"error: {e}", file=sys.stderr)
+            sys.exit(1)
+
         for i, event_elem in enumerate(events):
+            event_ref = f"{label} event {i}" if multi_source else f"event {i}"
             try:
                 parsed = parse_event(event_elem)
             except SysmonFormatError as e:
-                print(f"warning: skipping event {i}: {e}", file=sys.stderr)
+                print(f"warning: skipping {event_ref}: {e}", file=sys.stderr)
                 continue
 
             if parsed["EventID"] != 1:
                 print(
-                    f"warning: skipping event {i}: EventID {parsed['EventID']} is "
+                    f"warning: skipping {event_ref}: EventID {parsed['EventID']} is "
                     "not Process Creation (1)",
                     file=sys.stderr,
                 )
@@ -161,12 +210,12 @@ def main():
 
             results.append(parsed)
 
-        if not results:
-            raise SysmonFormatError(
-                "no Event ID 1 (Process Creation) events found in file"
-            )
-    except SysmonFormatError as e:
-        print(f"error: {e}", file=sys.stderr)
+    if not results:
+        suffix = " in file" if len(sources) == 1 and sources[0][0] != "<stdin>" else ""
+        print(
+            f"error: no Event ID 1 (Process Creation) events found{suffix}",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     filtered_results = [r for r in results if matches_filters(r, args)]
