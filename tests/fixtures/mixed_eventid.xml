@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Events xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+<Event>
+   <System>
+      <Provider Name="Microsoft-Windows-Sysmon" Guid="{5770385f-c22a-43e0-bf4c-06f5698ffbd9}" />
+      <EventID>1</EventID>
+      <Computer>win11v.condef.local</Computer>
+   </System>
+   <EventData>
+      <Data Name="UtcTime">2024-12-01 16:05:11.850</Data>
+      <Data Name="Image">C:\Windows\System32\whoami.exe</Data>
+      <Data Name="CommandLine">whoami  /groups</Data>
+      <Data Name="User">CONDEF\Administrator</Data>
+      <Data Name="IntegrityLevel">High</Data>
+      <Data Name="Hashes">SHA1=C23488BA47972B04F795D34B35C8257EC4B7AC9D</Data>
+      <Data Name="ParentImage">C:\Windows\System32\cmd.exe</Data>
+      <Data Name="ParentCommandLine">"C:\WINDOWS\system32\cmd.exe"</Data>
+   </EventData>
+</Event>
+<Event>
+   <System>
+      <Provider Name="Microsoft-Windows-Sysmon" Guid="{5770385f-c22a-43e0-bf4c-06f5698ffbd9}" />
+      <EventID>3</EventID>
+      <Computer>win11v.condef.local</Computer>
+   </System>
+   <EventData>
+      <Data Name="UtcTime">2024-12-01 16:06:00.000</Data>
+      <Data Name="Image">C:\Windows\System32\powershell.exe</Data>
+      <Data Name="DestinationIp">93.184.216.34</Data>
+      <Data Name="DestinationPort">443</Data>
+   </EventData>
+</Event>
+</Events>

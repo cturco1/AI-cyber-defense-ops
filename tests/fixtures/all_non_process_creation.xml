@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Events xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+<Event>
+   <System>
+      <Provider Name="Microsoft-Windows-Sysmon" Guid="{5770385f-c22a-43e0-bf4c-06f5698ffbd9}" />
+      <EventID>3</EventID>
+      <Computer>win11v.condef.local</Computer>
+   </System>
+   <EventData>
+      <Data Name="Image">C:\Windows\System32\powershell.exe</Data>
+      <Data Name="DestinationIp">93.184.216.34</Data>
+   </EventData>
+</Event>
+<Event>
+   <System>
+      <Provider Name="Microsoft-Windows-Sysmon" Guid="{5770385f-c22a-43e0-bf4c-06f5698ffbd9}" />
+      <EventID>5</EventID>
+      <Computer>win11v.condef.local</Computer>
+   </System>
+   <EventData>
+      <Data Name="Image">C:\Windows\System32\notepad.exe</Data>
+   </EventData>
+</Event>
+</Events>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+   <EventData>
+      <Data Name="Image">C:\Windows\System32\cmd.exe</Data>
+   </EventData>
+</Event>

@@ -23,8 +23,20 @@ array when parsing multiple events).
 
 ## Status
 
-No source code, build configuration, or dependencies exist yet. This file will need
-the following filled in once the project takes shape:
-- Build, lint, and test commands (including how to run a single test)
-- High-level architecture and directory layout
-- Any conventions or constraints specific to this project
+`parser.py` (stdlib only, no packaging) implements the extraction described above,
+with `samples/` fixtures and a `tests/` pytest suite covering it end-to-end.
+
+### Test commands
+
+```sh
+python3 -m venv .venv && source .venv/bin/activate && pip install pytest
+python -m pytest              # run the full suite
+python -m pytest -k <name>    # run a single test
+```
+
+### Layout
+
+- `parser.py` — the CLI tool
+- `samples/` — hand-built Sysmon XML fixtures used both for manual runs and tests
+- `tests/` — pytest suite (drives `parser.py` as a subprocess); `tests/fixtures/`
+  holds additional XML fixtures for error/edge-case scenarios not covered by `samples/`

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Event>
+   <System>
+      <Provider Name="Microsoft-Windows-Sysmon" />
+      <EventID>1</EventID>
+      <Computer>win11v.condef.local</Computer>
+   </System>
+</Event>
