@@ -23,8 +23,20 @@ above:
 - `multi_events.xml` — all three of the above wrapped in a single `<Events>`
   root, to exercise the multi-event code path
 
-The repo is a git repo (`git init` + one root commit) with a `.gitignore`
-excluding `.DS_Store` and the local `.claude/settings.local.json`.
+`tests/` holds a pytest suite (`test_parser.py`) that drives `parser.py` as
+a subprocess, plus `tests/fixtures/` — additional XML/directory fixtures for
+error and edge cases (malformed XML, wrong provider/namespace, missing
+`<System>`, empty `<Events>`, mixed EventIDs, directory input scenarios)
+that `samples/` doesn't cover. Run with:
+
+```bash
+python3 -m venv .venv && source .venv/bin/activate && pip install pytest
+python -m pytest
+```
+
+The repo is a git repo (`git init` + one root commit, now pushed to
+`cturco1/AI-cyber-defense-ops`) with a `.gitignore` excluding `.DS_Store`,
+`.venv/`, `.pytest_cache/`, and the local `.claude/settings.local.json`.
 
 ## How to use it
 
@@ -34,6 +46,13 @@ python3 parser.py samples/event1.xml
 
 # Multi-event file -> JSON array
 python3 parser.py samples/multi_events.xml
+
+# stdin (default when path is omitted, or pass "-" explicitly)
+cat samples/event1.xml | python3 parser.py
+cat samples/multi_events.xml | python3 parser.py -
+
+# Directory of .xml files -> parsed and aggregated together, sorted by name
+python3 parser.py samples/
 
 # Filters (all case-insensitive except --integrity-level, which is an exact
 # choice from High/Medium/Low/System; multiple filter types combine with AND)
@@ -50,9 +69,13 @@ python3 parser.py --help   # full flag reference
 ```
 
 Errors (missing file, malformed XML, wrong namespace/provider, no Event ID 1
-events in the file) print `error: ...` to stderr and exit 1. Non-fatal
-per-event issues (e.g. an Event ID 3 mixed into an `<Events>` file) print a
+events found) print `error: ...` to stderr and exit 1. Non-fatal per-event
+issues (e.g. an Event ID 3 mixed into an `<Events>` file) print a
 `warning: ...` to stderr and are skipped rather than aborting the whole run.
+When the input is a directory, a per-file error (e.g. one malformed XML file
+among several) is downgraded to the same skip-with-warning treatment rather
+than aborting the other files — it only hard-fails if the *whole run* ends
+up with zero valid Event ID 1 events.
 
 ## Decisions made and why
 
@@ -80,22 +103,25 @@ per-event issues (e.g. an Event ID 3 mixed into an `<Events>` file) print a
   comma-separated string — command lines routinely contain literal commas,
   so splitting on commas would be unreliable. Repeating the flag is the
   standard argparse idiom for a list of alternatives.
+- **`path` defaults to stdin (`-`)** rather than being required, matching
+  the Unix convention of `cat file | tool` and `tool -` both working. A
+  directory is auto-detected and expanded to its `*.xml` files (sorted by
+  name) rather than requiring a separate `--dir` flag.
+- **Directory input reuses the per-event skip-with-warning model at the
+  file level.** One bad file in a batch (malformed XML, wrong provider,
+  etc.) is skipped with a warning instead of aborting the whole directory
+  scan — consistent with how a single bad *event* is already handled inside
+  one file. A directory containing zero `.xml` files is still a hard error,
+  since that's almost certainly a mistyped path rather than "nothing to
+  report."
 
 ## What's left to do
 
-- No automated test suite yet — all verification so far has been manual
-  `python3 parser.py ...` runs against the `samples/` fixtures during
-  development. Worth adding a `pytest` suite (or similar) that codifies the
-  scenarios already exercised manually (valid parse, malformed XML, wrong
-  provider, wrong EventID, multi-event, each filter, filter combinations,
-  zero-match case).
-- No handling yet for a *directory* of XML files or reading from stdin —
-  the tool takes exactly one file path today.
 - No packaging (no `requirements.txt`/`pyproject.toml`); the script only
   uses the Python standard library, so this is optional unless you want to
   `pip install` it or add dependencies later.
-- CLAUDE.md's "Status" section still lists build/lint/test commands as
-  TODO — worth filling in once a test runner exists.
-- Git commit author was auto-derived from the local machine
-  (`cherylglass@Cheryls-MacBook-Pro.local`) — amend with
-  `git commit --amend --reset-author` if you want a different identity.
+- Git commit author on the pre-existing commits was auto-derived from the
+  local machine (`cherylglass@Cheryls-MacBook-Pro.local`). Global git config
+  is now set to `Cheryl Glass <ohmyyygoddess@gmail.com>` so future commits
+  use the right identity; the old commits were intentionally left as-is
+  rather than rewriting pushed history.
